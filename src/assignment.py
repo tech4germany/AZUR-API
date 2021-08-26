@@ -1,5 +1,5 @@
 import numpy as np
-import random
+
 
 def dhondt(votes, seats_available):
     
@@ -18,6 +18,7 @@ def dhondt(votes, seats_available):
         
     return seats, assgs
 
+
 def schepers(votes, seats_available):
     
     divs = np.array([0.5] * len(votes))
@@ -35,33 +36,34 @@ def schepers(votes, seats_available):
         
     return seats, assgs
 
+
 def hare_niemeyer(votes, seats_available):
     
     props = seats_available * votes / np.sum(votes)
-    #print(props)
+    # print(props)
     
     fulls = np.floor(props)
-    #print(fulls)
+    # print(fulls)
     
     rest = props - fulls
     
     seats_left = seats_available - np.sum(fulls)
-    #print(seats_left)
+    # print(seats_left)
     
     ranks = rest.argsort().argsort()
-    #print(ranks)
+    # print(ranks)
     
     gets_another_seat = np.where(ranks >= len(ranks) - seats_left, 1, 0)
-    #print(gets_another_seat)
+    # print(gets_another_seat)
     
     seats = fulls + gets_another_seat
     seats = seats.astype(int)
     
     return seats
 
-# demo
+
 def demo():
-    votes = np.array([1000000, 300000,100000,50000])
+    votes = np.array([1000000, 300000, 100000, 50000])
     seats = 25
 
     print('Votes: {}, Seats: {}'.format(votes, seats))

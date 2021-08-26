@@ -1,5 +1,4 @@
 import numpy as np
-import math
 from typing import Mapping, Tuple, Dict, List
 
 
@@ -93,10 +92,15 @@ def hare_niemeyer(votes: Mapping[str, int], seats_available: int) -> Dict[str, i
 
 
 def demo():
-    votes = np.array([1000000, 300000, 100000, 50000])
+    votes = {
+        "SPD": 1000000,
+        "CDU": 300000,
+        "GRÜNE": 100000,
+        "LINKE": 50000
+    }
     seats = 25
 
-    print('Votes: {}, Seats: {}'.format(votes, seats))
+    print(f'Votes: {votes}, Seats: {seats}')
     print("D'hondt")
     print(str(dhondt(votes, seats)))
 
@@ -105,15 +109,3 @@ def demo():
 
     print('Hare-Niemeyer')
     print(str(hare_niemeyer(votes, seats)))
-
-
-if __name__ == "__main__":
-    print(hare_niemeyer(
-        {
-            "cdu": 1000000,
-            "grüne": 300000,
-            "spd": 100000,
-            "dielinke": 50000
-         },
-        25
-    ))

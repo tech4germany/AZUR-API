@@ -1,10 +1,13 @@
 from flask import Flask, request
+from flask_cors import CORS
 
 from assignment import schepers, dhondt, hare_niemeyer
 
 
 app = Flask(__name__)
 
+# Allows CORS ON ALL ROUTES FOR ALL METHODS
+CORS(app)
 
 @app.route('/hello_world')
 def hello_world():

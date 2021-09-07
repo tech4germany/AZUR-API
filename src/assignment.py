@@ -83,7 +83,8 @@ def hare_niemeyer(votes: Mapping[str, int], seats_available: int) -> Dict[str, i
     # print(gets_another_seat)
     
     seats = fulls + gets_another_seat
-    seats = seats.astype(int)
+    # do not use numpy parse to int32 as that type is not understood by json parse (for api)
+    seats = map(int, seats)
 
     # TODO unsafe die ergebnisse einfach am ende mit den input keys zu zippen?
     seats_labeled = dict(zip(votes.keys(), seats))

@@ -41,7 +41,6 @@ def assign_iterative(votes, seats_available, div_starting_val = 1, return_table 
 
     for i in range(seats_available):
         
-        # TODO werden diese Zwischenergebnisse nicht irgendwie gerundet?
         vals = {key: val/divs[key] for (key, val) in votes.items()}
 
         # TODO how do we deal with multiple max values?!

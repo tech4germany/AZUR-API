@@ -1,59 +1,62 @@
 import numpy as np
 from typing import Mapping, Tuple, Dict, List
 
-
-def dhondt(votes: Mapping[str, int], seats_available: int) -> Tuple[Dict[str, int], List[str]]:
+def dhondt(votes: Mapping[str, int], seats_available: int, return_table: bool = False) -> Tuple[Dict[str, int], List[str], List[List[int]]]:
     """ Applies D'Hondt Method for calculating the distribution of all seats available based on the proportions of votes
     :param votes: the number of votes that each party/fraction received
     :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
-    :return: A Tuple containing (1) the final distribution and (2) the sequence in which these seats where distributed
+    :param return_table: whether or not the function should also return a table with each distribution up to the given one
+    :return: A Tuple containing (1) the final distribution, (2) the sequence in which these seats where distributed, (3) optionally 
+    the table of distributions from one seat up to the final one
     """
     
-    divs = {key: 1 for (key, val) in votes.items()}  # copy dict keys but init all divisors with 1
-    seats = {key: 0 for (key, val) in votes.items()}  # copy dict keys but init all seat counters with 0
-
-    assgs = []
-    
-    for i in range(seats_available):
-        # TODO werden diese Zwischenergebnisse nicht irgendwie gerundet?
-        vals = {key: val/divs[key] for (key, val) in votes.items()}
-
-        # TODO how do we deal with multiple max values?!
-        seat_goes_to = max(vals, key=vals.get)  # get key for party that gets the seat
-
-        assgs.append(seat_goes_to)
-        seats[seat_goes_to] += 1
-        divs[seat_goes_to] += 1
-
-    return seats, assgs
+    return assign_iterative(votes, seats_available, 1, return_table)
 
 
-def schepers(votes: Mapping[str, int], seats_available: int) -> Tuple[Dict[str, int], List[str]]:
+def schepers(votes: Mapping[str, int], seats_available: int, return_table: bool) -> Tuple[Dict[str, int], List[str], List[List[int]]]:
     """ Applies saint-lague/schepers Method for calculating the distribution of all seats available based on
     the proportions of votes
     :param votes: the number of votes that each party/fraction received
     :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
-    :return: A Tuple containing (1) the final distribution and (2) the sequence in which these seats where distributed
+    :param return_table: whether or not the function should also return a table with each distribution up to the given one
+    :return: A Tuple containing (1) the final distribution, (2) the sequence in which these seats where distributed, (3) optionally 
+    the table of distributions from one seat up to the final one
     """
 
-    divs = {key: 0.5 for (key, val) in votes.items()}
-    seats = {key: 0 for (key, val) in votes.items()}
-    assgs = []
+    return assign_iterative(votes, seats_available, 0.5, return_table)
 
-    # TODO remove code duplication between schepers and d'hondt in that loop
+def assign_iterative(votes, seats_available, div_starting_val = 1, return_table = False): #TODO typing
+    """ Performs the recursive assignment loop underlying dhondt and schepers methods
+    :param votes: the number of votes each party/faction received
+    :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
+    :param div_starting_val: the initial value of the divisor which is kept for each faction
+    :param return_table: whether or not the function should also return a table with each distribution up to the given one
+    :return: A Tuple containing (1) the final distribution, (2) the sequence in which these seats where distributed, (3) optionally 
+    the table of distributions from one seat up to the final one
+    """
+
+    divs = {key: div_starting_val for (key, val) in votes.items()}
+    assgs = []
+    if return_table: table = np.zeros(shape = (seats_available, len(votes)))
+
     for i in range(seats_available):
         
         vals = {key: val/divs[key] for (key, val) in votes.items()}
 
         # TODO how do we deal with multiple max values?!
         seat_goes_to = max(vals, key=vals.get)  # get key for party that gets the seat
-
         assgs.append(seat_goes_to)
-        seats[seat_goes_to] += 1
         divs[seat_goes_to] += 1
         
+        if return_table: table[i] = list(divs.values())
+    
+    seats = {key: int(val-div_starting_val) for (key, val) in divs.items()} # convert from divisors to seats
+    
+    if return_table: 
+        table = (table-div_starting_val).astype(int).tolist()# vals in table are divisors, not seats, this fixes that
+        return seats, assgs, table
+    
     return seats, assgs
-
 
 def hare_niemeyer(votes: Mapping[str, int], seats_available: int) -> Dict[str, int]:
     """ Applies Hare/Niemeyer Method for calculating the distribution of all seats available based on
@@ -90,8 +93,7 @@ def hare_niemeyer(votes: Mapping[str, int], seats_available: int) -> Dict[str, i
     seats_labeled = dict(zip(votes.keys(), seats))
     
     return seats_labeled
-
-
+    
 def demo():
     votes = {
         "SPD": 1000000,

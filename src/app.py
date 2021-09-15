@@ -18,35 +18,57 @@ def hello_world():
 def azur():
     input = request.get_json()
 
-    # Checking if all inputs are there
+    # Checking if all mandatory inputs are there
     try:
         method = input['method']
         votes = input['votes']
         num_of_seats = input['num_of_seats']
     except KeyError as e:
-        return f'Value with key {e} is required but wa snot found in the input data', 404
+        return f'Value with key {e} is required but was not found in the input data', 404
     except Exception as e:
         return 'An unexpected error occured', 500
 
-    # TODO Input validation and sanitization (no too large arrays and so on)
+    # Handling return_table
+    return_table = False
+    if 'return_table' in input.keys(): return_table = input['return_table']
 
+    # TODO Input validation and sanitization (no too large arrays and so on)
 
     allowed_methods = ['schepers', 'hare', 'dhondt']
 
     if method == 'schepers':
-        seats, assignment_sequence = schepers(votes, num_of_seats)
+        outputs = schepers(votes, num_of_seats, return_table)
     elif method == 'dhondt':
-        seats, assignment_sequence = dhondt(votes, num_of_seats)
+        outputs = dhondt(votes, num_of_seats, return_table)
     elif method == 'hare':
-        seats = hare_niemeyer(votes, num_of_seats)
-        assignment_sequence = None
+        outputs = hare_niemeyer(votes, num_of_seats)
     else:
-        return f'Unknwon method: Expected one of {str(allowed_methods)} but got {method}'
-
+        return f'Unknown method: Expected one of {str(allowed_methods)} but got {method}', 500
+    
+    seats = outputs[0]
+    
+    if method != 'hare':
+        assignment_sequence = outputs[1]
+        if return_table: 
+            table = outputs[2]
+            return (
+                {
+                "seats": seats,
+                "assignment_sequence": assignment_sequence,
+                "table": table,
+                },
+                200
+            )  
+        return (
+            {
+            "seats": seats,
+            "assignment_sequence": assignment_sequence
+            },
+            200
+        )
     return (
-        {
-           "seats": seats,
-           "assignment_sequence": assignment_sequence
-        },
-        200
-    )
+    {
+    "seats": seats,
+    },
+    200
+)

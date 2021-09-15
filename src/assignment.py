@@ -1,22 +1,26 @@
 import numpy as np
 from typing import Mapping, Tuple, Dict, List
 
-def dhondt(votes: Mapping[str, int], seats_available: int, return_table: bool) -> Tuple[Dict[str, int], List[str], List[List[int]]]: #TODO list of lists typing? 
+def dhondt(votes: Mapping[str, int], seats_available: int, return_table: bool = False) -> Tuple[Dict[str, int], List[str], List[List[int]]]:
     """ Applies D'Hondt Method for calculating the distribution of all seats available based on the proportions of votes
     :param votes: the number of votes that each party/fraction received
     :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
-    :return: A Tuple containing (1) the final distribution and (2) the sequence in which these seats where distributed
+    :param return_table: whether or not the function should also return a table with each distribution up to the given one
+    :return: A Tuple containing (1) the final distribution, (2) the sequence in which these seats where distributed, (3) optionally 
+    the table of distributions from one seat up to the final one
     """
     
     return assign_iterative(votes, seats_available, 1, return_table)
 
 
-def schepers(votes: Mapping[str, int], seats_available: int, return_table: bool) -> Tuple[Dict[str, int], List[str]]:
+def schepers(votes: Mapping[str, int], seats_available: int, return_table: bool) -> Tuple[Dict[str, int], List[str], List[List[int]]]:
     """ Applies saint-lague/schepers Method for calculating the distribution of all seats available based on
     the proportions of votes
     :param votes: the number of votes that each party/fraction received
     :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
-    :return: A Tuple containing (1) the final distribution and (2) the sequence in which these seats where distributed
+    :param return_table: whether or not the function should also return a table with each distribution up to the given one
+    :return: A Tuple containing (1) the final distribution, (2) the sequence in which these seats where distributed, (3) optionally 
+    the table of distributions from one seat up to the final one
     """
 
     return assign_iterative(votes, seats_available, 0.5, return_table)
@@ -26,6 +30,9 @@ def assign_iterative(votes, seats_available, div_starting_val = 1, return_table 
     :param votes: the number of votes each party/faction received
     :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
     :param div_starting_val: the initial value of the divisor which is kept for each faction
+    :param return_table: whether or not the function should also return a table with each distribution up to the given one
+    :return: A Tuple containing (1) the final distribution, (2) the sequence in which these seats where distributed, (3) optionally 
+    the table of distributions from one seat up to the final one
     """
 
     divs = {key: div_starting_val for (key, val) in votes.items()}

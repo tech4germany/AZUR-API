@@ -24,7 +24,7 @@ def azur():
         votes = input['votes']
         num_of_seats = input['num_of_seats']
     except KeyError as e:
-        return f'Value with key {e} is required but wa snot found in the input data', 404
+        return f'Value with key {e} is required but was not found in the input data', 404
     except Exception as e:
         return 'An unexpected error occured', 500
 

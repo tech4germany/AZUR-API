@@ -41,7 +41,8 @@ def azur():
     elif method == 'dhondt':
         outputs = dhondt(votes, num_of_seats, return_table)
     elif method == 'hare':
-        outputs = hare_niemeyer(votes, num_of_seats)
+        seats = hare_niemeyer(votes, num_of_seats)
+        outputs = (seats, None)
     else:
         return f'Unknown method: Expected one of {str(allowed_methods)} but got {method}', 500
     

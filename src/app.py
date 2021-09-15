@@ -41,7 +41,7 @@ def azur():
         seats = hare_niemeyer(votes, num_of_seats)
         assignment_sequence = None
     else:
-        return f'Unknwon method: Expected one of {str(allowed_methods)} but got {method}'
+        return f'Unknown method: Expected one of {str(allowed_methods)} but got {method}', 500
 
     return (
         {

@@ -45,7 +45,6 @@ def assign_iterative(votes, seats_available, div_starting_val = 1, return_table 
 
         # TODO how do we deal with multiple max values?!
         seat_goes_to = max(vals, key=vals.get)  # get key for party that gets the seat
-        
         assgs.append(seat_goes_to)
         divs[seat_goes_to] += 1
         

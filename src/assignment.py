@@ -1,38 +1,37 @@
 import numpy as np
 from typing import Mapping, Tuple, Dict, List
 
-def dhondt(votes: Mapping[str, int], seats_available: int, return_table: bool = False) -> Tuple[Dict[str, int], List[str], List[List[int]]]:
+def dhondt(votes: Mapping[str, int], seats_available: int, return_table: bool = False) -> Tuple[Dict[str, int], List[str], Dict]:
     """ Applies D'Hondt Method for calculating the distribution of all seats available based on the proportions of votes
     :param votes: the number of votes that each party/fraction received
     :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
     :param return_table: whether or not the function should also return a table with each distribution up to the given one
     :return: A Tuple containing (1) the final distribution, (2) the sequence in which these seats where distributed, (3) optionally 
-    the table of distributions from one seat up to the final one
+    the table of distributions from one seat up to the final one as a dict with (a) the headers and (b) the values of the table
     """
     
     return assign_iterative(votes, seats_available, 1, return_table)
 
-
-def schepers(votes: Mapping[str, int], seats_available: int, return_table: bool) -> Tuple[Dict[str, int], List[str], List[List[int]]]:
+def schepers(votes: Mapping[str, int], seats_available: int, return_table: bool) -> Tuple[Dict[str, int], List[str], Dict]:
     """ Applies saint-lague/schepers Method for calculating the distribution of all seats available based on
     the proportions of votes
     :param votes: the number of votes that each party/fraction received
     :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
     :param return_table: whether or not the function should also return a table with each distribution up to the given one
     :return: A Tuple containing (1) the final distribution, (2) the sequence in which these seats where distributed, (3) optionally 
-    the table of distributions from one seat up to the final one
+    the table of distributions from one seat up to the final one as a dict with (a) the headers and (b) the values of the table
     """
 
     return assign_iterative(votes, seats_available, 0.5, return_table)
 
-def assign_iterative(votes, seats_available, div_starting_val = 1, return_table = False): #TODO typing
+def assign_iterative(votes: Mapping[str, int], seats_available: int, div_starting_val: int = 1, return_table: bool = False) -> Tuple[Dict[str, int], List[str], Dict]:
     """ Performs the recursive assignment loop underlying dhondt and schepers methods
     :param votes: the number of votes each party/faction received
     :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
     :param div_starting_val: the initial value of the divisor which is kept for each faction
     :param return_table: whether or not the function should also return a table with each distribution up to the given one
     :return: A Tuple containing (1) the final distribution, (2) the sequence in which these seats where distributed, (3) optionally 
-    the table of distributions from one seat up to the final one
+    the table of distributions from one seat up to the final one as a dict with (a) the headers and (b) the values of the table
     """
 
     divs = {key: div_starting_val for (key, val) in votes.items()}
@@ -54,6 +53,10 @@ def assign_iterative(votes, seats_available, div_starting_val = 1, return_table 
     
     if return_table: 
         table = (table-div_starting_val).astype(int).tolist()# vals in table are divisors, not seats, this fixes that
+        table_headers = list(votes.keys())
+        table = {'table_headers': table_headers,
+                 'table_values': table}
+
         return seats, assgs, table
     
     return seats, assgs

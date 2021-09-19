@@ -13,7 +13,6 @@ CORS(app)
 def hello_world():
     return 'Hello World from the API'
 
-
 @app.route('/azur', methods=['POST'])
 def azur():
     input = request.get_json()

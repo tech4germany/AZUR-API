@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Mapping, Tuple, Dict, List
 
-def dhondt(votes: Mapping[str, int], seats_available: int, return_table: bool = False) -> Tuple[Dict[str, int], List[str], Dict]:
+def dhondt(votes: Mapping[str, int], seats_available: int, return_table: bool = False) -> Tuple[Dict[str, int], List[str], Dict]: #TODO update output typing
     """ Applies D'Hondt Method for calculating the distribution of all seats available based on the proportions of votes
     :param votes: the number of votes that each party/fraction received
     :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
@@ -13,7 +13,7 @@ def dhondt(votes: Mapping[str, int], seats_available: int, return_table: bool = 
 
     return assign_iterative(votes, seats_available, 1, return_table)
 
-def schepers(votes: Mapping[str, int], seats_available: int, return_table: bool) -> Tuple[Dict[str, int], List[str], Dict]:
+def schepers(votes: Mapping[str, int], seats_available: int, return_table: bool) -> Tuple[Dict[str, int], List[str], Dict]: #TODO update output typing
     """ Applies saint-lague/schepers Method for calculating the distribution of all seats available based on
     the proportions of votes
     :param votes: the number of votes that each party/fraction received
@@ -26,7 +26,7 @@ def schepers(votes: Mapping[str, int], seats_available: int, return_table: bool)
 
     return assign_iterative(votes, seats_available, 0.5, return_table)
 
-def assign_iterative(votes: Mapping[str, int], seats_available: int, div_starting_val: int = 1, return_table: bool = False) -> Tuple[Dict[str, int], List[str], Dict]:
+def assign_iterative(votes: Mapping[str, int], seats_available: int, div_starting_val: int = 1, return_table: bool = False) -> Tuple[Dict[str, int], List[str], Dict]: #TODO update output typing
     """ Performs the recursive assignment loop underlying dhondt and schepers methods
     :param votes: the number of votes each party/faction received
     :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
@@ -40,6 +40,7 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
         (b) the values of the table in table_values, with the previous row repeated in cases of ambiguity, 
         (c) a table with all zeroes except 1's for parties which could receive an ambiguous seat in rows with ambiguity
     """
+
 
     divs = {key: div_starting_val for (key, val) in votes.items()}
     ambigs = {key: 0 for (key,val) in votes.items()} # Returns ambiguities, if any, in final assignment

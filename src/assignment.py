@@ -78,7 +78,7 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
             n_ambiguous_seats = len(party_keys) - 1
 
             # Add list of tied parties to assignment order
-            assgs.append(party_keys) 
+            for i in range(n_ambiguous_seats): assgs.append(party_keys) 
             
             # Skip the next n iterations of the loop
             skip_iter = n_ambiguous_seats
@@ -113,7 +113,7 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
                     table[i+n_ambiguous_seats] = list(divs.values())
                 except IndexError:
                     # No worries, was just out of bounds of table, nothing needs updating
-                    print('no worries, wont add that row')
+                    pass
                  
     # Format final party seat numbers and ambiguities
     party_names = list(votes.keys())

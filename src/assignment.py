@@ -22,6 +22,7 @@ def schepers(votes: Mapping[str, int], seats_available: int, return_table: bool)
     :return: A Tuple containing (1) the final distribution, (2) the sequence in which these seats where distributed, (3) optionally 
     the table of distributions from one seat up to the final one as a dict with (a) the headers and (b) the values of the table
     """
+    
     # TODO update docstring 
 
     return assign_iterative(votes, seats_available, 0.5, return_table)

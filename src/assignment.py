@@ -19,7 +19,8 @@ def schepers(votes: Mapping[str, int], seats_available: int, return_table: bool 
     return assign_iterative(votes, seats_available, 0.5, return_table)
 
 def assign_iterative(votes: Mapping[str, int], seats_available: int, div_starting_val: int = 1, return_table: bool = False) -> Dict[str, Union[Dict, List[Dict]]]:
-    """ Performs the recursive assignment loop underlying dhondt and schepers methods
+    """ 
+    Performs the recursive assignment loop underlying dhondt and schepers methods
     :param votes: the number of votes each party/faction received in a mapping of format {party_name: seats}
     :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
     :param div_starting_val: the initial value of the divisor which is kept for each faction (1 for d'Hondt, 0.5 for Schepers)
@@ -105,7 +106,6 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
     out = {}
 
     # Format final distribution
-    party_names = list(votes.keys())
     seats_corrected = {key: int(divs[key]-div_starting_val) for key in divs} # convert from divisors to seats
     seats_with_ambigs, is_ambiguous = add_ambiguity(seats_corrected, ambigs) # add ambiguities to seats dict if relevant
     out['distribution'] = {'seats': seats_with_ambigs, 'is_ambiguous': is_ambiguous}

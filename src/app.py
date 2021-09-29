@@ -23,9 +23,9 @@ def azur():
         votes = input['votes']
         num_of_seats = input['num_of_seats']
     except KeyError as e:
-        return f'Value with key {e} is required but was not found in the input data', 404
+        return {'message': f'Value with key {e} is required but was not found in the input data'}, 404
     except Exception as e:
-        return 'An unexpected error occured', 500
+        return {'message': 'An unexpected error occured'}, 500
 
     # Handling return_table
     return_table = False
@@ -42,6 +42,6 @@ def azur():
     elif method == 'hare':
         output = hare_niemeyer(votes, num_of_seats)
     else:
-        return f'Unknown method: Expected one of {str(allowed_methods)} but got {method}', 500
+        return {'message': f'Unknown method: Expected one of {str(allowed_methods)} but got {method}'}, 500
     
     return output

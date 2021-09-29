@@ -36,39 +36,12 @@ def azur():
     allowed_methods = ['schepers', 'hare', 'dhondt']
 
     if method == 'schepers':
-        outputs = schepers(votes, num_of_seats, return_table)
+        output = schepers(votes, num_of_seats, return_table)
     elif method == 'dhondt':
-        outputs = dhondt(votes, num_of_seats, return_table)
+        output = dhondt(votes, num_of_seats, return_table)
     elif method == 'hare':
-        seats = hare_niemeyer(votes, num_of_seats)
-        outputs = (seats, None)
+        output = hare_niemeyer(votes, num_of_seats)
     else:
         return f'Unknown method: Expected one of {str(allowed_methods)} but got {method}', 500
     
-    seats = outputs[0]
-    
-    if method != 'hare':
-        assignment_sequence = outputs[1]
-        if return_table: 
-            table = outputs[2]
-            return (
-                {
-                "seats": seats,
-                "assignment_sequence": assignment_sequence,
-                "table": table,
-                },
-                200
-            )  
-        return (
-            {
-            "seats": seats,
-            "assignment_sequence": assignment_sequence
-            },
-            200
-        )
-    return (
-    {
-    "seats": seats,
-    },
-    200
-)
+    return output

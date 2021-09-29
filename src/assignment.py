@@ -1,7 +1,7 @@
 import numpy as np
-from typing import Mapping, Tuple, Dict, List
+from typing import Mapping, Tuple, Dict, List, Union
 
-def dhondt(votes: Mapping[str, int], seats_available: int, return_table: bool = False) -> Tuple[Dict[str, int], List[str], Dict]: #TODO update output typing
+def dhondt(votes: Mapping[str, int], seats_available: int, return_table: bool = False) -> Dict[str, Union[Dict, List[Dict]]]:
     """ Applies D'Hondt Method for calculating the distribution of all seats available based on the proportions of votes
     :param votes: the number of votes that each party/fraction received
     :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
@@ -9,11 +9,11 @@ def dhondt(votes: Mapping[str, int], seats_available: int, return_table: bool = 
     :return: A Tuple containing (1) the final distribution, (2) the sequence in which these seats where distributed, (3) optionally 
     the table of distributions from one seat up to the final one as a dict with (a) the headers and (b) the values of the table
     """
-    # TODO update docstring
+    # TODO update docstring for new output
 
     return assign_iterative(votes, seats_available, 1, return_table)
 
-def schepers(votes: Mapping[str, int], seats_available: int, return_table: bool) -> Tuple[Dict[str, int], List[str], Dict]: #TODO update output typing
+def schepers(votes: Mapping[str, int], seats_available: int, return_table: bool = False) -> Dict[str, Union[Dict, List[Dict]]]:
     """ Applies saint-lague/schepers Method for calculating the distribution of all seats available based on
     the proportions of votes
     :param votes: the number of votes that each party/fraction received
@@ -22,11 +22,11 @@ def schepers(votes: Mapping[str, int], seats_available: int, return_table: bool)
     :return: A Tuple containing (1) the final distribution, (2) the sequence in which these seats where distributed, (3) optionally 
     the table of distributions from one seat up to the final one as a dict with (a) the headers and (b) the values of the table
     """
-    # TODO update docstring 
+    # TODO update docstring for new output
 
     return assign_iterative(votes, seats_available, 0.5, return_table)
 
-def assign_iterative(votes: Mapping[str, int], seats_available: int, div_starting_val: int = 1, return_table: bool = False) -> Tuple[Dict[str, int], List[str], Dict]: #TODO update output typing
+def assign_iterative(votes: Mapping[str, int], seats_available: int, div_starting_val: int = 1, return_table: bool = False) -> Dict[str, Union[Dict, List[Dict]]]:
     """ Performs the recursive assignment loop underlying dhondt and schepers methods
     :param votes: the number of votes each party/faction received
     :param seats_available: the total number of seats (or minutes, or rooms...) available for distribution
@@ -40,10 +40,12 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
         (b) the values of the table in table_values, with the previous row repeated in cases of ambiguity, 
         (c) a table with all zeroes except 1's for parties which could receive an ambiguous seat in rows with ambiguity
     """
+    # TODO update docstring for new output
 
-
+    # TODO big refactor using dict output formats from here rather than converting to them later on
+    # (write tests first!!!)
     divs = {key: div_starting_val for (key, val) in votes.items()}
-    ambigs = {key: 0 for (key,val) in votes.items()} # Returns ambiguities, if any, in final assignment
+    ambigs = {key: 0 for (key,val) in votes.items()} # Stores ambiguities, if any, in final assignment
     assgs = []
     if return_table: 
         table = np.zeros(shape = (seats_available, len(votes)))
@@ -115,25 +117,47 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
                 except IndexError:
                     # No worries, was just out of bounds of table, nothing needs updating
                     pass
-                 
-    # Format final party seat numbers and ambiguities
+
+    ### Format Output
+    out = {}
+
+    # Format final distribution
     party_names = list(votes.keys())
-    seats_final = {key: int(val-div_starting_val) for (key, val) in divs.items()} # convert from divisors to seats
-    seats = {'seats': seats_final,
-             'ambiguities': ambigs}
+    seats_corrected = {key: int(val-div_starting_val) for (key, val) in divs.items()} # convert from divisors to seats
+    seats_with_ambigs = add_ambiguity(seats_corrected, ambigs) # add ambiguities to seats dict if relevant
+    out['distribution'] = {'seats': seats_with_ambigs, 'is_ambiguous': any(type(x) == list for x in seats_with_ambigs.values())}
     
+    # Format assignment sequence
+    assgs_final = [{'seat_goes_to': x, 'is_ambiguous': (type(x) == list)} for x in assgs]
+    out['assignment_sequence'] = assgs_final
+
+    # Format table
     if return_table: 
 
         table = (table-div_starting_val).astype(int).tolist() # vals in table are divisors, not seats, this fixes that
         ambig_table = ambig_table.astype(int).tolist()
+        
+        dict_table = [dict(zip(party_names, x)) for x in table]
+        dict_ambig_table = [dict(zip(party_names, x)) for x in ambig_table]
 
-        table = {'table_headers': party_names,
-                 'table_values': table,
-                 'table_ambiguities': ambig_table}
+        dicts_with_ambigs = [add_ambiguity(dict_table[x], dict_ambig_table[x]) for x in range(len(dict_table))] #TODO this range should be num seats? Actually i hope I never do this todo and just refactor instead
+        table_final = [{'seats': this_row, 'is_ambiguous': any(type(x) == list for x in this_row.values())} for this_row in dicts_with_ambigs]
 
-        return seats, assgs, table
+        out['table'] = table_final
     
-    return seats, assgs
+    return out
+
+def add_ambiguity(seats, ambigs):
+    '''
+    A helper function that takes a seat distribution and a number of ambiguous seats (each as dict) and returns 
+    a dict of the seats per party, as int if no ambig, else as a list of possible seat nr options
+    '''
+    # TODO formalize docsting
+
+    party_names = seats.keys()
+    ambig_list = [seats[x] if ambigs[x] == 0 else [seats[x], seats[x]+ambigs[x]] for x in party_names]
+
+    return dict(zip(party_names, ambig_list))
 
 def hare_niemeyer(votes: Mapping[str, int], seats_available: int) -> Dict[str, int]:
     """ Applies Hare/Niemeyer Method for calculating the distribution of all seats available based on
@@ -169,9 +193,10 @@ def hare_niemeyer(votes: Mapping[str, int], seats_available: int) -> Dict[str, i
     # TODO unsafe die ergebnisse einfach am ende mit den input keys zu zippen?
     seats_labeled = dict(zip(votes.keys(), seats))
     
-    return seats_labeled
+    return {'distribution': {'seats': seats_labeled, 'is_ambiguous': False}}
     
 def demo():
+
     votes = {
         "SPD": 1000000,
         "CDU": 300000,
@@ -182,10 +207,10 @@ def demo():
 
     print(f'Votes: {votes}, Seats: {seats}')
     print("D'hondt")
-    print(str(dhondt(votes, seats)))
+    print(str(dhondt(votes, seats, True)))
 
     print('Schepers')
-    print(str(schepers(votes, seats)))
+    print(str(schepers(votes, seats, True)))
 
     print('Hare-Niemeyer')
     print(str(hare_niemeyer(votes, seats)))

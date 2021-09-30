@@ -77,6 +77,7 @@ def validate_input(input): #TODO docstring; typing
     except AssertionError as e:
         return False, {'message': str(e)}, 400
 
+    # All submitted variables are within allowed range
     allowed_methods = ['schepers', 'hare', 'dhondt']
     if method not in allowed_methods: 
         return False, {'message': f"Unknown method: Expected one of {allowed_methods} but got {method}"}, 500
@@ -87,6 +88,9 @@ def validate_input(input): #TODO docstring; typing
     elif num_of_seats <= 0:
         return False, {'message': f"Num_of_seats ({num_of_seats}) is below 1"}, 400
 
+    parties_limit = 100
+    if len(votes) > parties_limit: 
+        return False, {'message': f"The votes dictionary contains {len(votes)} parties, above the accepted limit of {parties_limit}"}
     return True, None, None
 
 def assign(input): #TODO docstring; typing

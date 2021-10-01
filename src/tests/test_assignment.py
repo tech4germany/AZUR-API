@@ -11,22 +11,31 @@ def read_vals():
 
     test_vals = []
 
-    with open('tests/tests.csv', newline='', encoding = 'utf8') as csvfile:
-        reader = csv.reader(csvfile, delimiter = ',')
+    with open('tests/tests.csv', encoding = 'utf8') as csvfile:
+        reader = csv.reader(csvfile, delimiter = '|')
         for row in reader: 
             
-            row_dict = {'method': row[0],
-                        'votes': ast.literal_eval(row[1]),
-                        'seats': int(row[2]),
-                        'out_distribution': ast.literal_eval(row[3]),
-                        #'out_sequence': row[4],
-                        #'out_table': row[5] # TODO handle + handle empties
-                        }
+            row_dict = {}
+            lit_eval_rows = {'votes': 1,
+                             'out_distribution': 3,
+                             'out_sequence': 4,
+                             'out_table': 5}
+
+            for var_name, input_pos in lit_eval_rows.items():
+                try:
+                    row_dict[var_name] = ast.literal_eval(row[input_pos])
+                except:
+                    print(row[input_pos])
+                    print('nuh uh', var_name)
+                    row_dict[var_name] = None
+
+            row_dict['method'] = row[0]
+            row_dict['num_of_seats'] = int(row[2])
 
             test_vals.append(row_dict)
-    
-    dhondt_tests = [x for x in test_vals if x.pop('method', None) == 'dhondt']
-    schepers_tests = [x for x in test_vals if x.pop('method', None) == 'schepers']
+
+    dhondt_tests = [x for x in test_vals if x['method'] == 'dhondt']
+    schepers_tests = [x for x in test_vals if x['method'] == 'schepers']
     hare_tests = [x for x in test_vals if x.pop('method', None) == 'hare']
 
     return {'dhondt': dhondt_tests,
@@ -70,68 +79,157 @@ def test_hare_import():
     
     assert type(hare_niemeyer(sample_votes, sample_seats)) == dict
 
-def test_dhondt_output_structure():
+@pytest.mark.parametrize('params', tests['dhondt'])   
+def test_dhondt_output_structure(params):
 
-    output = dhondt(sample_votes, sample_seats, True)
+    output = dhondt(params['votes'], params['num_of_seats'], True)
 
     assert type(output) == dict
     assert len(output) == 3
 
-def test_dhondt_dist_structure():
+@pytest.mark.parametrize('params', tests['dhondt'])    
+def test_dhondt_dist_structure(params):
     
-    output = dhondt(sample_votes, sample_seats, True)['distribution']
+    output = dhondt(params['votes'], params['num_of_seats'])['distribution']
 
     assert type(output) == dict
     assert len(output) == 2
     assert type(output['seats']) == dict
-    assert len(output['seats']) == len(sample_votes)
+    assert len(output['seats']) == len(params['votes'])
     assert type(output['is_ambiguous']) == bool
 
-def test_dhondt_sequence_structure():
+@pytest.mark.parametrize('params', tests['dhondt'])    
+def test_dhondt_sequence_structure(params):
     
-    output = dhondt(sample_votes, sample_seats, True)['assignment_sequence']
+    output = dhondt(params['votes'], params['num_of_seats'])['assignment_sequence']
 
     assert type(output) == list
-    assert len(output) == sample_seats
+    assert len(output) == params['num_of_seats']
     assert all(type(x) == dict for x in output)
     assert all(type(x['is_ambiguous'] == bool) for x in output)
 
-def test_dhondt_table_structure():
+@pytest.mark.parametrize('params', tests['dhondt'])    
+def test_dhondt_table_structure(params):
     
-    output = dhondt(sample_votes, sample_seats, True)['table']
+    output = dhondt(params['votes'], params['num_of_seats'], True)['table']
 
     assert type(output) == list
-    assert len(output) == sample_seats
+    assert len(output) == params['num_of_seats']
     assert all(type(x) == dict for x in output)
-    assert all(len(x['seats']) == len(sample_votes) for x in output)
+    assert all(len(x['seats']) == len(params['votes']) for x in output)
 
 @pytest.mark.parametrize('params', tests['dhondt'])    
-def test_dhondt_distribution(params):
+def test_dhondt_distribution_values(params):
 
     if params['out_distribution'] is not None:
-        output = dhondt(params['votes'], params['seats'], False)
+        output = dhondt(params['votes'], params['num_of_seats'])
         assert output['distribution'] == params['out_distribution']
     
     assert True
 
 @pytest.mark.parametrize('params', tests['dhondt'])  
-def test_dhondt_sequence(params):
+def test_dhondt_sequence_values(params):
     
     if params['out_sequence'] is not None:
-        output = dhondt(params['votes'], params['seats'], False)
+        output = dhondt(params['votes'], params['num_of_seats'])
         assert output['assignment_sequence'] == params['out_sequence']
 
-# def test_dhondt_table(params):
-#     pass
+    assert True
 
-# def test_schepers_distribution(params):
-#     pass
+@pytest.mark.parametrize('params', tests['dhondt'])  
+def test_dhondt_table_values(params):
 
-# def test_schepers_sequence(params):
-#     pass
+    if params['out_table'] is not None:
+        output = dhondt(params['votes'], params['num_of_seats'], True)
+        
+        for item_to_check in params['out_table']:
+            assert output['table'][item_to_check['row'] - 1] == item_to_check['distribution']
+    
+    assert True
 
-# def test_schepers_table(params):
-#     pass
+@pytest.mark.parametrize('params', tests['schepers'])   
+def test_schepers_output_structure(params):
+
+    output = schepers(params['votes'], params['num_of_seats'], True)
+
+    assert type(output) == dict
+    assert len(output) == 3
+
+@pytest.mark.parametrize('params', tests['schepers'])    
+def test_schepers_dist_structure(params):
+    
+    output = schepers(params['votes'], params['num_of_seats'])['distribution']
+
+    assert type(output) == dict
+    assert len(output) == 2
+    assert type(output['seats']) == dict
+    assert len(output['seats']) == len(params['votes'])
+    assert type(output['is_ambiguous']) == bool
+
+@pytest.mark.parametrize('params', tests['schepers'])    
+def test_schepers_sequence_structure(params):
+    
+    output = schepers(params['votes'], params['num_of_seats'])['assignment_sequence']
+
+    assert type(output) == list
+    assert len(output) == params['num_of_seats']
+    assert all(type(x) == dict for x in output)
+    assert all(type(x['is_ambiguous'] == bool) for x in output)
+
+@pytest.mark.parametrize('params', tests['schepers'])    
+def test_schepers_table_structure(params):
+    
+    output = schepers(params['votes'], params['num_of_seats'], True)['table']
+
+    assert type(output) == list
+    assert len(output) == params['num_of_seats']
+    assert all(type(x) == dict for x in output)
+    assert all(len(x['seats']) == len(params['votes']) for x in output)
+
+@pytest.mark.parametrize('params', tests['schepers'])    
+def test_schepers_distribution_values(params):
+
+    if params['out_distribution'] is not None:
+        output = schepers(params['votes'], params['num_of_seats'])
+        assert output['distribution'] == params['out_distribution']
+    
+    assert True
+
+@pytest.mark.parametrize('params', tests['schepers'])  
+def test_schepers_sequence_values(params):
+    
+    if params['out_sequence'] is not None:
+        output = schepers(params['votes'], params['num_of_seats'])
+        assert output['assignment_sequence'] == params['out_sequence']
+
+    assert True
+
+@pytest.mark.parametrize('params', tests['schepers'])  
+def test_schepers_table_values(params):
+
+    if params['out_table'] is not None:
+        output = schepers(params['votes'], params['num_of_seats'], True)
+        
+        for item_to_check in params['out_table']:
+            assert output['table'][item_to_check['row'] - 1] == item_to_check['distribution']
+    
+    assert True
+
+@pytest.mark.parametrize('params', tests['hare'])
+def test_hare_structure(params):
+
+    output = hare_niemeyer(params['votes'], params['num_of_seats'])
+
+    assert type(output) == dict
+    assert len(output) == 1
+    assert len(output['distribution']) == len(params['votes'])
+
+@pytest.mark.parametrize('params', tests['hare'])
+def test_hare_distribution_values(params):
+
+    output = hare_niemeyer(params['votes'], params['num_of_seats'])
+
+    assert output['distribution'] == params['out_distribution']
 
 # TODO tests:
 # - Länge Tabelle 

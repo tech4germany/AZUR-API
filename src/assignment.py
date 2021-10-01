@@ -72,7 +72,9 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
 
             # Add list of tied parties to assignment order
             #assgs.append(party_keys)
-            for p in range(n_ambiguous_seats + 1): assgs.append(party_keys) 
+            for p in range(n_ambiguous_seats + 1): 
+                if len(assgs) < seats_available:
+                    assgs.append(party_keys) 
             
             # Skip the next n iterations of the loop
             skip_iter = n_ambiguous_seats

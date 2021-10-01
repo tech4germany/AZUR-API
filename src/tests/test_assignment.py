@@ -18,8 +18,8 @@ def read_vals():
             row_dict = {'method': row[0],
                         'votes': ast.literal_eval(row[1]),
                         'seats': int(row[2]),
-                        'out_dist': ast.literal_eval(row[3]),
-                        #'out_order': row[4],
+                        'out_distribution': ast.literal_eval(row[3]),
+                        #'out_sequence': row[4],
                         #'out_table': row[5] # TODO handle + handle empties
                         }
 
@@ -108,12 +108,18 @@ def test_dhondt_table_structure():
 @pytest.mark.parametrize('params', tests['dhondt'])    
 def test_dhondt_distribution(params):
 
-    output = dhondt(params['votes'], params['seats'], False)
+    if params['out_distribution'] is not None:
+        output = dhondt(params['votes'], params['seats'], False)
+        assert output['distribution'] == params['out_distribution']
+    
+    assert True
 
-    assert output['distribution']['seats'] == params['out_dist']
-
-# def test_dhondt_order(params):
-#     pass
+@pytest.mark.parametrize('params', tests['dhondt'])  
+def test_dhondt_sequence(params):
+    
+    if params['out_sequence'] is not None:
+        output = dhondt(params['votes'], params['seats'], False)
+        assert output['assignment_sequence'] == params['out_sequence']
 
 # def test_dhondt_table(params):
 #     pass
@@ -121,7 +127,7 @@ def test_dhondt_distribution(params):
 # def test_schepers_distribution(params):
 #     pass
 
-# def test_schepers_order(params):
+# def test_schepers_sequence(params):
 #     pass
 
 # def test_schepers_table(params):

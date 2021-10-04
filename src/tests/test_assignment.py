@@ -25,8 +25,6 @@ def read_vals():
                 try:
                     row_dict[var_name] = ast.literal_eval(row[input_pos])
                 except:
-                    print(row[input_pos])
-                    print('nuh uh', var_name)
                     row_dict[var_name] = None
 
             row_dict['method'] = row[0]
@@ -145,6 +143,8 @@ def test_dhondt_table_values(params):
         for item_to_check in params['out_table']:
             assert output['table'][item_to_check['row'] - 1] == item_to_check['distribution']
     
+        assert output['distribution'] == output['table'][-1]
+
     assert True
 
 @pytest.mark.parametrize('params', tests['schepers'])   
@@ -181,7 +181,7 @@ def test_schepers_table_structure(params):
     
     output = schepers(params['votes'], params['num_of_seats'], True)['table']
 
-    assert type(output) == list
+    assert type(output) == list 
     assert len(output) == params['num_of_seats']
     assert all(type(x) == dict for x in output)
     assert all(len(x['seats']) == len(params['votes']) for x in output)
@@ -212,6 +212,8 @@ def test_schepers_table_values(params):
         
         for item_to_check in params['out_table']:
             assert output['table'][item_to_check['row'] - 1] == item_to_check['distribution']
+    
+        assert output['distribution'] == output['table'][-1]
     
     assert True
 

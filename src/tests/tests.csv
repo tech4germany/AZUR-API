@@ -1,1 +1,2 @@
-"dhondt","{'SPD': 1000000,'CDU': 300000,'GRÜNE': 100000,'LINKE': 50000}",25,"{'SPD': 19, 'CDU': 5, 'GRÜNE': 1, 'LINKE': 0}"
+"dhondt"|"{'SPD': 1000000,'CDU': 300000,'GRUENE': 100000,'LINKE': 50000}"|25|"{'seats':{'SPD': 19, 'CDU': 5, 'GRUENE': 1, 'LINKE': 0},'is_ambiguous': False}"||"[{'row': 1, 'distribution': {'seats':{'SPD': 1, 'CDU': 0, 'GRUENE': 0, 'LINKE': 0},'is_ambiguous': False}},{'row': 2, 'distribution': {'seats':{'SPD': 2, 'CDU': 0, 'GRUENE': 0, 'LINKE': 0},'is_ambiguous': False}}]"
+"schepers"|{'SPD': 1000000,'CDU': 1000000}|3|{'seats':{'SPD': [1,2], 'CDU': [1,2]}, 'is_ambiguous': True}|"[{'is_ambiguous': True, 'seat_goes_to':['SPD', 'CDU']}, {'is_ambiguous': True, 'seat_goes_to':['SPD', 'CDU']}, {'is_ambiguous': True, 'seat_goes_to':['SPD', 'CDU']}]"|

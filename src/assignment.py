@@ -72,7 +72,9 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
 
             # Add list of tied parties to assignment order
             #assgs.append(party_keys)
-            for p in range(n_ambiguous_seats + 1): assgs.append(party_keys) 
+            for p in range(n_ambiguous_seats + 1): 
+                if len(assgs) < seats_available:
+                    assgs.append(party_keys) 
             
             # Skip the next n iterations of the loop
             skip_iter = n_ambiguous_seats
@@ -92,7 +94,10 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
                 # And add ambiguities in ambig table
                 for r in range(n_ambiguous_seats): 
                     if len(table) <= seats_available:
-                        table.append(table[-1].copy())
+                        
+                        if len(table) > 0: table.append(table[-1].copy())
+                        else: table.append({key: div_starting_val for key in votes}) # Case where first row is ambiguous
+
                         # TODO should this instead only be in the first ambiguous row?
                         # TODO should number always be 1, or total ambiguous seats?
                         ambig_table.append({key: 1 if key in party_keys else 0 for key in votes})
@@ -166,7 +171,7 @@ def hare_niemeyer(votes: Mapping[str, int], seats_available: int) -> Dict[str, i
     seats_labeled = dict(zip(votes.keys(), seats))
     
     return {'distribution': {'seats': seats_labeled, 'is_ambiguous': False}}
-    
+ 
 def demo():
 
     votes = {

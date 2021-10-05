@@ -2,6 +2,7 @@
 from flask import Flask, request
 from flask_cors import CORS
 import json
+import os
 
 from assignment import schepers, dhondt, hare_niemeyer
 
@@ -122,3 +123,9 @@ def dict_raise_on_duplicates(ordered_pairs): #TODO docstring; typing
         if k in d: raise ValueError("Duplicate key: %r" % (k,))
         else: d[k] = v
     return d
+
+
+if __name__ == '__main__':
+    # Bind to PORT if defined, otherwise default to 5000.
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)

@@ -11,7 +11,7 @@ def read_vals():
 
     test_vals = []
 
-    with open('tests/tests.csv', encoding = 'utf8') as csvfile:
+    with open('src/tests/tests.csv', encoding = 'utf8') as csvfile:
         reader = csv.reader(csvfile, delimiter = '|')
         for row in reader: 
             

@@ -13,7 +13,7 @@ CORS(app)
 
 @app.route('/hello_world') #TODO replace with default route and link to API docs
 def hello_world():
-    return 'Hello World from the API, now hosted in a docker container on heroku!'
+    return 'Hi Lotsen!'
 
 @app.route('/azur', methods=['POST'])
 def azur():

@@ -224,7 +224,7 @@ def test_hare_structure(params):
 
     assert type(output) == dict
     assert len(output) == 1
-    assert len(output['distribution']) == len(params['votes'])
+    assert len(output['distribution']['seats']) == len(params['votes'])
 
 @pytest.mark.parametrize('params', tests['hare'])
 def test_hare_distribution_values(params):

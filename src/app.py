@@ -30,7 +30,7 @@ def azur():
     
     except Exception as e:
         if type(e) == ValueError: return {'message': str(e)}, 500 # This probably means there's a duplicate key
-        return {'message': 'The request JSON could not be parsed.'}, 500
+        return {'message': 'The request JSON could not be parsed.'}, 500 # TODO error codes
 
     try:
         # Validating input completeness and sanitization
@@ -79,6 +79,7 @@ def validate_input(input): #TODO docstring; typing
         return False, {'message': str(e)}, 400
 
     # All submitted variables are within allowed range
+    # TODO turn into asserts
     allowed_methods = ['schepers', 'hare', 'dhondt']
     if method not in allowed_methods: 
         return False, {'message': f"Unknown method: Expected one of {allowed_methods} but got {method}"}, 500
@@ -92,6 +93,7 @@ def validate_input(input): #TODO docstring; typing
     parties_limit = 100
     if len(votes) > parties_limit: 
         return False, {'message': f"The votes dictionary contains {len(votes)} parties, above the accepted limit of {parties_limit}"}
+    
     return True, None, None
 
 def assign(input): #TODO docstring; typing
@@ -128,4 +130,4 @@ def dict_raise_on_duplicates(ordered_pairs): #TODO docstring; typing
 if __name__ == '__main__':
     # Bind to PORT if defined, otherwise default to 5000.
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)

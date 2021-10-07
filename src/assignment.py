@@ -163,14 +163,39 @@ def hare_niemeyer(votes: Mapping[str, int], seats_available: int) -> Dict[str, i
     fulls = np.floor(props)
     rest = props - fulls
     seats_left = seats_available - np.sum(fulls)
-    ranks = rest.argsort().argsort()  
+
+    # Get ranks
+    _, v = np.unique(rest, return_inverse=True)
+    ranks = (np.cumsum(np.bincount(v)) - 1)[v]
+
     gets_another_seat = np.where(ranks >= len(ranks) - seats_left, 1, 0)
-    seats = fulls + gets_another_seat
-    seats = map(int, seats)
-    # TODO unsafe die ergebnisse einfach am ende mit den input keys zu zippen?
-    seats_labeled = dict(zip(votes.keys(), seats))
+
+    if sum(gets_another_seat) <= seats_left: # No Ambiguity
+        
+        is_ambiguous = False
+        seats = fulls + gets_another_seat
+
+        seats_labeled = dict(zip(votes.keys(), seats))
+
+    else: # Ambiguity
+
+        is_ambiguous = True
+
+        # Find rank which is ambiguous
+        ambig_rank = min(np.where(ranks >= len(ranks) - seats_left, ranks, np.inf))
+
+        # Find seats that are definitely assigned despite ambiguity
+        safe_gets_another_seat = np.where(ranks > ambig_rank, 1, 0)
+
+        # Find parties that may get another seat
+        ambigs = np.where(ranks == ambig_rank, 1, 0)
+
+        seats = dict(zip(votes.keys(), fulls + safe_gets_another_seat))
+        ambigs = dict(zip(votes.keys(), ambigs))
+
+        seats_labeled, _ = add_ambiguity(seats,ambigs)
     
-    return {'distribution': {'seats': seats_labeled, 'is_ambiguous': False}}
+    return {'distribution': {'seats': seats_labeled, 'is_ambiguous': is_ambiguous}}
  
 def demo():
 

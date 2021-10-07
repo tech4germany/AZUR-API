@@ -1,6 +1,28 @@
 import numpy as np
 from typing import Mapping, Tuple, Dict, List, Union
 
+def assign(input): #TODO docstring; typing
+    """
+    Calls the assignment method required by an assignment input JSON and returns the output the method produces. Assumes
+    the input is validated.
+    """
+    votes = input['votes']
+    method = input['method']
+    num_seats = input['num_of_seats']
+
+    # Handling return_table
+    return_table = False
+    if 'return_table' in input.keys(): return_table = input['return_table']
+
+    if method == 'schepers':
+        output = schepers(votes, num_seats, return_table)
+    elif method == 'dhondt':
+        output = dhondt(votes, num_seats, return_table)
+    elif method == 'hare':
+        output = hare_niemeyer(votes, num_seats, return_table)
+    
+    return output
+
 def dhondt(votes: Mapping[str, int], seats_available: int, return_table: bool = False) -> Dict[str, Union[Dict, List[Dict]]]:
     """
     Applies the d'Hondt Method for calculating the distribution of all seats available based on
@@ -148,7 +170,19 @@ def add_ambiguity(seats: Dict[str, int], ambigs: Dict[str, int]) -> Dict[str, Un
 
     return ambig_dict, is_ambiguous
 
-def hare_niemeyer(votes: Mapping[str, int], seats_available: int) -> Dict[str, int]:
+def hare_niemeyer(votes: Mapping[str, int], seats_available: int, return_table: bool = False) -> Dict[str, Union[Dict, List[Dict]]]:
+
+    out = {}
+
+    if return_table:
+        out['table'] = [single_distribution_hare_niemeyer(votes, x) for x in range(1,seats_available+1)]
+        out['distribution'] = out['table'][-1]
+    else:
+        out['distribution'] = single_distribution_hare_niemeyer(votes, seats_available)
+
+    return out
+
+def single_distribution_hare_niemeyer(votes: Mapping[str, int], seats_available: int) -> Dict[str, int]:
     """ 
     Applies the Hare/Niemeyer Method for calculating the distribution of all seats available based on
     the proportions of votes
@@ -195,7 +229,7 @@ def hare_niemeyer(votes: Mapping[str, int], seats_available: int) -> Dict[str, i
 
         seats_labeled, _ = add_ambiguity(seats,ambigs)
     
-    return {'distribution': {'seats': seats_labeled, 'is_ambiguous': is_ambiguous}}
+    return {'seats': seats_labeled, 'is_ambiguous': is_ambiguous}
  
 def demo():
 
@@ -215,4 +249,4 @@ def demo():
     print(str(schepers(votes, seats, True)))
 
     print('Hare-Niemeyer')
-    print(str(hare_niemeyer(votes, seats)))
+    print(hare_niemeyer(votes, seats, True))

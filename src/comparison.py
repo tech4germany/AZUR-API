@@ -49,16 +49,16 @@ def compare_demo():
                 "GRÜNE": 100000,
                 "LINKE": 50000
     },
-    'method':'hare'}
+    'method':'dhondt'}
 
     params2 = {'votes':
                 {
                 "SPD": 1000000,
                 "CDU": 200000,
-                "GRÜNE": 100000,
+                "GRÜNE": 100500,
                 "LINKE": 50000
     },
-    'method':'hare'}
+    'method':'dhondt'}
 
     seats = 25
 

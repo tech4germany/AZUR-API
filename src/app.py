@@ -60,7 +60,10 @@ def azur_compare():
     params_2 = input['dist_B']
     num_seats = input['num_of_seats']
 
-    return compare(params_1, params_2, num_seats), 500
+    try:
+        return compare(params_1, params_2, num_seats), 200
+    except:
+        return {'message':'An unexpected server error occured.'}, 500
 
 
 def validate_input(input): #TODO docstring; typing

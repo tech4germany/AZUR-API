@@ -210,6 +210,7 @@ def single_distribution_hare_niemeyer(votes: Mapping[str, int], seats_available:
         seats = fulls + gets_another_seat
 
         seats_labeled = dict(zip(votes.keys(), seats))
+        seats_labeled = {key: int(val) for key, val in seats_labeled.items()}
 
     else: # Ambiguity
 
@@ -226,6 +227,9 @@ def single_distribution_hare_niemeyer(votes: Mapping[str, int], seats_available:
 
         seats = dict(zip(votes.keys(), fulls + safe_gets_another_seat))
         ambigs = dict(zip(votes.keys(), ambigs))
+
+        seats = {key: int(val) for key, val in seats.items()}
+        ambigs = {key: int(val) for key, val in ambigs.items()}
 
         seats_labeled, _ = add_ambiguity(seats,ambigs)
     

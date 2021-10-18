@@ -1,4 +1,4 @@
 "dhondt"|"{'SPD': 1000000,'CDU': 300000,'GRUENE': 100000,'LINKE': 50000}"|25|"{'seats':{'SPD': 19, 'CDU': 5, 'GRUENE': 1, 'LINKE': 0},'is_ambiguous': False}"||"[{'row': 1, 'distribution': {'seats':{'SPD': 1, 'CDU': 0, 'GRUENE': 0, 'LINKE': 0},'is_ambiguous': False}},{'row': 2, 'distribution': {'seats':{'SPD': 2, 'CDU': 0, 'GRUENE': 0, 'LINKE': 0},'is_ambiguous': False}}]"
 "schepers"|{'SPD': 1000000,'CDU': 1000000}|3|{'seats':{'SPD': [1,2], 'CDU': [1,2]}, 'is_ambiguous': True}|"[{'is_ambiguous': True, 'seat_goes_to':['SPD', 'CDU']}, {'is_ambiguous': True, 'seat_goes_to':['SPD', 'CDU']}, {'is_ambiguous': True, 'seat_goes_to':['SPD', 'CDU']}]"|
-"hare"|{"A": 251,"B": 248,"C": 55,"D": 47,"E": 1,"F": 1}|45|{'seats':{"A": 19,"B": [18,19],"C": 4,"D": [3,4],"E": 0,"F": 0},'is_ambiguous':True}||
+"hare"|{"A": 251,"B": 248,"C": 55,"D": 47,"E": 1,"F": 1}|45|{'seats':{"A": 19,"B": 18,"C": 4,"D": 4,"E": 0,"F": 0},'is_ambiguous':False}||
 "dhondt"|{"A": 270,"B": 180,"C": 90,"D": 30,"E": 30,"F": 15}|36|{'seats':{"A": [17,18],"B": [11,12],"C": [5,6],"D": [1,2],"E": [1,2],"F": [0,1]},'is_ambiguous':True}||

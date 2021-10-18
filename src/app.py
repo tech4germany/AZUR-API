@@ -4,7 +4,8 @@ from flask_cors import CORS
 import json
 import os
 
-from assignment import schepers, dhondt, hare_niemeyer
+from assignment import assign
+from comparison import compare
 
 app = Flask(__name__)
 
@@ -41,6 +42,29 @@ def azur():
 
     except:
         return {'message': 'An unexpected server error occurred.'}, 500
+
+@app.route('/azur_compare', methods=['POST'])
+def azur_compare():
+
+    try:
+        request_data = request.get_data()
+        input = json.loads(request_data, object_pairs_hook=dict_raise_on_duplicates) # Catch duplicates in input JSON
+    
+    except Exception as e:
+        if type(e) == ValueError: return {'message': str(e)}, 500 # This probably means there's a duplicate key
+        return {'message': 'The request JSON could not be parsed.'}, 500 # TODO error codes
+    
+    #TODO input validation
+    
+    params_1 = input['dist_A']
+    params_2 = input['dist_B']
+    num_seats = input['num_of_seats']
+
+    try:
+        return compare(params_1, params_2, num_seats), 200
+    except:
+        return {'message':'An unexpected server error occured.'}, 500
+
 
 def validate_input(input): #TODO docstring; typing
     """
@@ -95,28 +119,6 @@ def validate_input(input): #TODO docstring; typing
         return False, {'message': f"The votes dictionary contains {len(votes)} parties, above the accepted limit of {parties_limit}"}
     
     return True, None, None
-
-def assign(input): #TODO docstring; typing
-    """
-    Calls the assignment method required by an assignment input JSON and returns the output the method produces. Assumes
-    the input is validated.
-    """
-    votes = input['votes']
-    method = input['method']
-    num_seats = input['num_of_seats']
-
-    # Handling return_table
-    return_table = False
-    if 'return_table' in input.keys(): return_table = input['return_table']
-
-    if method == 'schepers':
-        output = schepers(votes, num_seats, return_table)
-    elif method == 'dhondt':
-        output = dhondt(votes, num_seats, return_table)
-    elif method == 'hare':
-        output = hare_niemeyer(votes, num_seats)
-    
-    return output
 
 def dict_raise_on_duplicates(ordered_pairs): #TODO docstring; typing
     """Helper function that rejects duplicate keys in dict, passed to json.loads above."""

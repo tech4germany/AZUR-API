@@ -1,11 +1,13 @@
 import numpy as np
-from typing import Mapping, Tuple, Dict, List, Union
+from typing import Mapping, Dict, List, Union
+from fractions import Fraction
 
 def assign(input): #TODO docstring; typing
     """
     Calls the assignment method required by an assignment input JSON and returns the output the method produces. Assumes
     the input is validated.
     """
+    
     votes = input['votes']
     method = input['method']
     num_seats = input['num_of_seats']
@@ -58,8 +60,8 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
     """
 
     # Initialize required tracking vars
-    divs = {key: div_starting_val for (key, val) in votes.items()}
-    ambigs = {key: 0 for (key,val) in votes.items()}
+    divs = {key: div_starting_val for key in votes.keys()}
+    ambigs = {key: 0 for key in votes.keys()}
     assgs = []
     if return_table: table, ambig_table = [], []
     skip_iter = 0 # An n-way ambiguity handles n rows at once. This variable tracks how many iters are then skipped 
@@ -70,7 +72,7 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
             skip_iter -= 1
             continue 
 
-        divided_vals = {key: val/divs[key] for (key, val) in votes.items()}
+        divided_vals = {key: Fraction(val)/Fraction(divs[key]) for (key, val) in votes.items()}
 
         # Find party/parties that get next seat
         seat_goes_to = [i for i, x in enumerate(divided_vals.values()) if x == max(divided_vals.values())]
@@ -93,7 +95,6 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
             n_ambiguous_seats = len(party_keys) - 1
 
             # Add list of tied parties to assignment order
-            #assgs.append(party_keys)
             for p in range(n_ambiguous_seats + 1): 
                 if len(assgs) < seats_available:
                     assgs.append(party_keys) 
@@ -102,7 +103,6 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
             skip_iter = n_ambiguous_seats
 
             # Skipping those iterations may end the loop, in that case add ambiguity to seats output
-            # TODO This is screaming off-by-one-error? Test
             if i + skip_iter >= seats_available: 
                 for party in party_keys: ambigs[party] = 1
             else:
@@ -111,7 +111,6 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
             
             if return_table:
                 
-                # TODO mem errors through too much appending possible?
                 # Add as many rows in table as previous one as seats are ambiguous
                 # And add ambiguities in ambig table
                 for r in range(n_ambiguous_seats): 
@@ -120,8 +119,6 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
                         if len(table) > 0: table.append(table[-1].copy())
                         else: table.append({key: div_starting_val for key in votes}) # Case where first row is ambiguous
 
-                        # TODO should this instead only be in the first ambiguous row?
-                        # TODO should number always be 1, or total ambiguous seats?
                         ambig_table.append({key: 1 if key in party_keys else 0 for key in votes})
                     
                 # Add row to table where ambiguity is resolved, ie. each ambig. party gets an extra seat
@@ -133,7 +130,7 @@ def assign_iterative(votes: Mapping[str, int], seats_available: int, div_startin
     out = {}
 
     # Format final distribution
-    seats_corrected = {key: int(divs[key]-div_starting_val) for key in divs} # convert from divisors to seats
+    seats_corrected = {key: int(divs[key]-div_starting_val) for key in divs} # convert divisors to seats
     seats_with_ambigs, is_ambiguous = add_ambiguity(seats_corrected, ambigs) # add ambiguities to seats dict if relevant
     out['distribution'] = {'seats': seats_with_ambigs, 'is_ambiguous': is_ambiguous}
     
@@ -192,8 +189,10 @@ def single_distribution_hare_niemeyer(votes: Mapping[str, int], seats_available:
     {'distribution': 'seats': {...}, is_ambiguous: bool}
     """
 
-    votes_vals = np.array(list(votes.values()))
-    props = seats_available * votes_vals / np.sum(votes_vals)
+    votes_vals = list(votes.values())
+    props = [Fraction(seats_available * val) / Fraction(sum(votes_vals)) for val in votes_vals]
+    # float(Decimal(seats_available) * Decimal(votes_vals) / Decimal(np.sum(votes_vals)))
+
     fulls = np.floor(props)
     rest = props - fulls
     seats_left = seats_available - np.sum(fulls)
